@@ -9,12 +9,15 @@ import { Repository } from 'typeorm';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
+import { OtpToken } from '../auth/entities/otpToken.entity';
 
 @Injectable()
 export class EmployeeService {
   constructor(
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
+    @InjectRepository(OtpToken)
+    private readonly otpTokenRepository: Repository<OtpToken>,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
@@ -86,5 +89,16 @@ export class EmployeeService {
 
   remove(id: number) {
     return `This action removes a #${id} employee`;
+  }
+
+  //generate otp
+  async generateEmail(employeeId){
+    const employee= await this.findOne(employeeId);
+    if(!employee){
+      throw new NotFoundException('Employee not found')
+    }
+    const otp=await this.otpTokenRepository
+    
+
   }
 }

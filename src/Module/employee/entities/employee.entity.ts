@@ -1,5 +1,6 @@
 import { UserRole } from 'src/enum/role.enum';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { OtpToken } from 'src/Module/auth/entities/otpToken.entity';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class Employee {
@@ -63,4 +64,11 @@ export class Employee {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   public updated_at: Date;
+
+@OneToMany(()=>OtpToken,(otpToken)=>otpToken.employee)
+otpToken:OtpToken
+
+
+
+
 }

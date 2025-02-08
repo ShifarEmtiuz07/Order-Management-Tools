@@ -144,11 +144,6 @@ export class EmployeeController {
       throw new NotFoundException(`Employee with ID ${employeeId} not found`);
     }
 
-    //if update-dto do not have  employee img and database has employee img then database img assign update-dto
-
-    // if (!files.employeeImage && employee.employeeImage) {
-    //   updateEmployeeDto.employeeImage = employee.employeeImage;
-    // }
 
     //if one and only when files && database has employeeImage then delete the database image
 
@@ -159,22 +154,6 @@ export class EmployeeController {
         fs.unlinkSync(filePath);
       }
     }
-
-    
-    // If files.employeeAvatar does not exist and employee.employeeAvatar exists, assign employee.employeeAvatar to updateEmployeeDto.employeeAvatar
-    // if (!files.employeeAvatar && employee.employeeAvatar) {
-    //   updateEmployeeDto.employeeAvatar = employee.employeeAvatar;
-    // }
-
-    // if (!files.employeeAvatar && employee.employeeAvatar) {
-    //   // updateEmployeeDto.employeeAvatar=employee.employeeAvatar;
-    //   // let i = 0;
-
-    //   for (const avatar of employee.employeeAvatar) {
-    //     console.log(avatar);
-    //      updateEmployeeDto.employeeAvatar[1] = avatar;
-    //   }
-    // }
 
     //if one and only when files && database has employeeAvatar then delete the database image
     if (files && files.employeeAvatar && employee.employeeAvatar) {
@@ -226,8 +205,30 @@ export class EmployeeController {
     return this.employeeService.update(employeeId, updateEmployeeDto);
   }
 
+
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.employeeService.remove(+id);
   }
+
+@Post('send-otp')
+async generateOtp(@Body('employeeId') employeeId:string){
+
+    await this.employeeService.generateEmail(employeeId);
+    return {status:'success', message:'Sending email in a moment'}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
