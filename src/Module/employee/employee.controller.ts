@@ -212,10 +212,10 @@ export class EmployeeController {
     return this.employeeService.remove(+id);
   }
 
-@Post('send-otp')
+@Post('change-password') //send-otp
 async generateOtp(@Body('employeeId') employeeId:string){
 
-    await this.employeeService.generateEmail(employeeId);
+    await this.employeeService.generateEmailAndOtp(employeeId);
     return {status:'success', message:'Sending email in a moment'}
 }
 

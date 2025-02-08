@@ -10,6 +10,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
 import { OtpToken } from '../auth/entities/otpToken.entity';
+import { VerificationService } from '../auth/verification.service';
 
 @Injectable()
 export class EmployeeService {
@@ -17,7 +18,9 @@ export class EmployeeService {
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
     @InjectRepository(OtpToken)
-    private readonly otpTokenRepository: Repository<OtpToken>,
+    private readonly otpRepository: Repository<OtpToken>,
+
+    private readonly verificationService:VerificationService
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
@@ -92,12 +95,13 @@ export class EmployeeService {
   }
 
   //generate otp
-  async generateEmail(employeeId){
+  async generateEmailAndOtp(employeeId:string){
     const employee= await this.findOne(employeeId);
     if(!employee){
       throw new NotFoundException('Employee not found')
     }
-    const otp=await this.otpTokenRepository
+    const otp=await this.verificationService.generateOtp(employeeId);
+
     
 
   }

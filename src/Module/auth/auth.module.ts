@@ -4,11 +4,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Auth } from './entities/otpToken.entity';
+import { Auth } from './entities/auth.entity';
+import { OtpToken } from './entities/otpToken.entity';
+import { Employee } from '../employee/entities/employee.entity';
+
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Auth]),
+    TypeOrmModule.forFeature([Auth,OtpToken,Employee]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
