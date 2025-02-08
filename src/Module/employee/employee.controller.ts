@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import { extname } from 'path';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -38,6 +37,7 @@ export class EmployeeController {
           // new MaxFileSizeValidator({ maxSize: 900 * 1024, }),
           // new FileTypeValidator({ fileType: /image\/.*/ }),
         ],
+        fileIsRequired: false,
       }),
     )
     files: {
@@ -54,13 +54,22 @@ export class EmployeeController {
 
     const employeeAvatar_imgs = [];
     let employee_img = '';
-    if (files.employeeAvatar) {
+    if (files && files.employeeAvatar) {
       for (const file of files.employeeAvatar) {
         const format = year + month + day + second;
         const ext = extname(file.originalname);
 
         const baseName = file.originalname.replace(ext, '');
-        const fileName = baseName + '-' + format + ext;
+        //const fileName = baseName + '-' + format + ext;
+        const fileName =
+          createEmployeeDto.name +
+          '-' +
+          createEmployeeDto.employeeId +
+          '-' +
+          'avtar' +
+          '-' +
+          format +
+          ext;
         const filePath = `./employeesUpload/${fileName}`;
 
         await fs.writeFile(filePath, file.buffer);
@@ -68,12 +77,21 @@ export class EmployeeController {
       }
     }
 
-    if (files.employeeImage && files.employeeImage[0].originalname) {
+    if (files && files.employeeImage && files.employeeImage[0].originalname) {
       const format = year + month + day + second;
 
       const ext = extname(files.employeeImage[0].originalname);
       const basename = files.employeeImage[0].originalname.replace(ext, '');
-      const fileName = basename + '-' + format + ext;
+      const fileName =
+        createEmployeeDto.name +
+        '-' +
+        createEmployeeDto.employeeId +
+        '-' +
+        'profile' +
+        '-' +
+        format +
+        ext;
+      //const fileName = basename + '-' + format + ext;
       const filePath = `./employeesUpload/${fileName}`;
       await fs.writeFile(filePath, files.employeeImage[0].buffer);
       employee_img = fileName;
@@ -112,6 +130,7 @@ export class EmployeeController {
           // new MaxFileSizeValidator({ maxSize: 900 * 1024, }),
           // new FileTypeValidator({ fileType: /image\/.*/ }),
         ],
+        fileIsRequired: false,
       }),
     )
     files: {
@@ -119,23 +138,48 @@ export class EmployeeController {
       employeeAvatar?: Express.Multer.File[];
     },
   ) {
-    console.log(employeeId)
     const employee = await this.employeeService.findOne(employeeId);
-    console.log(employee)
+
     if (!employee) {
       throw new NotFoundException(`Employee with ID ${employeeId} not found`);
     }
 
-    if (employee.employeeImage) {
-      const imagePath = path.resolve(employee.employeeImage);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+    //if update-dto do not have  employee img and database has employee img then database img assign update-dto
+
+    // if (!files.employeeImage && employee.employeeImage) {
+    //   updateEmployeeDto.employeeImage = employee.employeeImage;
+    // }
+
+    //if one and only when files && database has employeeImage then delete the database image
+
+    if (files && files.employeeImage && employee.employeeImage) {
+      const filePath = `./employeesUpload/${employee.employeeImage}`;
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
     }
 
-    if (employee.employeeAvatar && Array.isArray(employee.employeeAvatar)) {
+    
+    // If files.employeeAvatar does not exist and employee.employeeAvatar exists, assign employee.employeeAvatar to updateEmployeeDto.employeeAvatar
+    // if (!files.employeeAvatar && employee.employeeAvatar) {
+    //   updateEmployeeDto.employeeAvatar = employee.employeeAvatar;
+    // }
+
+    // if (!files.employeeAvatar && employee.employeeAvatar) {
+    //   // updateEmployeeDto.employeeAvatar=employee.employeeAvatar;
+    //   // let i = 0;
+
+    //   for (const avatar of employee.employeeAvatar) {
+    //     console.log(avatar);
+    //      updateEmployeeDto.employeeAvatar[1] = avatar;
+    //   }
+    // }
+
+    //if one and only when files && database has employeeAvatar then delete the database image
+    if (files && files.employeeAvatar && employee.employeeAvatar) {
       for (const avatar of employee.employeeAvatar) {
-        const avatarPath = path.resolve(avatar);
+        const avatarPath = `./employeesUpload/${avatar}`;
         if (fs.existsSync(avatarPath)) {
           fs.unlinkSync(avatarPath);
         }
@@ -151,7 +195,7 @@ export class EmployeeController {
 
     const employeeAvatar_imgs = [];
     let employee_img = '';
-    if (files.employeeAvatar) {
+    if (files && files.employeeAvatar) {
       for (const file of files.employeeAvatar) {
         const format = year + month + day + second;
         const ext = extname(file.originalname);
@@ -164,9 +208,9 @@ export class EmployeeController {
         employeeAvatar_imgs.push(fileName);
       }
     }
-    updateEmployeeDto.employeeAvatar = employeeAvatar_imgs;
+    updateEmployeeDto.employeeAvatar =employeeAvatar_imgs.length? employeeAvatar_imgs :employee.employeeAvatar;
 
-    if (files.employeeImage && files.employeeImage[0].originalname) {
+    if (files && files.employeeImage && files.employeeImage[0].originalname) {
       const format = year + month + day + second;
 
       const ext = extname(files.employeeImage[0].originalname);
@@ -175,12 +219,11 @@ export class EmployeeController {
       const filePath = `./employeesUpload/${fileName}`;
       await fs.writeFile(filePath, files.employeeImage[0].buffer);
       employee_img = fileName;
-      updateEmployeeDto.employeeImage = employee_img;
-      
+     
     }
-    const emID=employeeId
+    updateEmployeeDto.employeeImage = employee_img?employee_img:employee.employeeImage;
 
-    return this.employeeService.update(employeeId, {...updateEmployeeDto,employeeId:emID});
+    return this.employeeService.update(employeeId, updateEmployeeDto);
   }
 
   @Delete(':id')
