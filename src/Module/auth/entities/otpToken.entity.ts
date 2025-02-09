@@ -25,7 +25,7 @@ export class OtpToken {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => Employee, (employee) => employee.otpToken)
-  // @JoinColumn({ name: 'userId' }) // will be userId by default
-  employee: Employee;
+  // @ManyToOne(() => Employee, (employee) => employee.otpToken)
+  // // @JoinColumn({ name: 'userId' }) // will be userId by default
+  // employee: Employee;
 }

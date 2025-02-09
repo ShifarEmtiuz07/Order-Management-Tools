@@ -65,8 +65,8 @@ export class Employee {
   })
   public updated_at: Date;
 
-@OneToMany(()=>OtpToken,(otpToken)=>otpToken.employee)
-otpToken:OtpToken
+// @OneToMany(()=>OtpToken,(otpToken)=>otpToken.employee)
+// otpToken:OtpToken
 
 
 

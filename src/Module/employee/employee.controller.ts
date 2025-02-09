@@ -144,7 +144,6 @@ export class EmployeeController {
       throw new NotFoundException(`Employee with ID ${employeeId} not found`);
     }
 
-
     //if one and only when files && database has employeeImage then delete the database image
 
     if (files && files.employeeImage && employee.employeeImage) {
@@ -187,7 +186,9 @@ export class EmployeeController {
         employeeAvatar_imgs.push(fileName);
       }
     }
-    updateEmployeeDto.employeeAvatar =employeeAvatar_imgs.length? employeeAvatar_imgs :employee.employeeAvatar;
+    updateEmployeeDto.employeeAvatar = employeeAvatar_imgs.length
+      ? employeeAvatar_imgs
+      : employee.employeeAvatar;
 
     if (files && files.employeeImage && files.employeeImage[0].originalname) {
       const format = year + month + day + second;
@@ -198,37 +199,32 @@ export class EmployeeController {
       const filePath = `./employeesUpload/${fileName}`;
       await fs.writeFile(filePath, files.employeeImage[0].buffer);
       employee_img = fileName;
-     
     }
-    updateEmployeeDto.employeeImage = employee_img?employee_img:employee.employeeImage;
+    updateEmployeeDto.employeeImage = employee_img
+      ? employee_img
+      : employee.employeeImage;
 
     return this.employeeService.update(employeeId, updateEmployeeDto);
   }
-
-
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.employeeService.remove(+id);
   }
 
-@Post('change-password') //send-otp
-async generateOtp(@Body('employeeId') employeeId:string){
-
+  @Post('forgot-password/send-otp') //send-otp
+  async sendEmailAndOtp(@Body('employeeId') employeeId: string) {
     await this.employeeService.generateEmailAndOtp(employeeId);
-    return {status:'success', message:'Sending email in a moment'}
-}
+    return { status: 'success', message: 'Sending email in a moment' };
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
+  @Post('forgot-password/varify-otp/:emplopyeeId') //send-otp
+  async verifiedEmailAndOtp(
+    @Param('emplopyeeId') employeeId: string,
+    @Body('otp') otp: string,
+    @Body('password') password: string,
+  ) {
+    await this.employeeService.verifyEmailAndOtp(employeeId, otp, password);
+    return { status: 'success', message: 'Password changed successfully' };
+  }
 }

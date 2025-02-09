@@ -3,13 +3,13 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { CreateAuthDto } from '../dto/create-auth.dto';
+import { UpdateAuthDto } from '../dto/update-auth.dto';
 import { Repository } from 'typeorm';
-import { OtpToken } from './entities/otpToken.entity';
+import { OtpToken } from '../entities/otpToken.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { Auth } from './entities/auth.entity';
+import { Auth } from '../entities/auth.entity';
 
 @Injectable()
 export class AuthService {

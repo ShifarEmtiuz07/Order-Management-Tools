@@ -10,14 +10,13 @@ import {
   SetMetadata,
   Res,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { AuthGuard } from './auth.guard';
 import { Roles } from 'src/utils/roles.decorator';
 import { Role } from 'src/utils/role.enum';
 import { RolesGuard } from 'src/utils/roles.guard';
-
 
 @Controller('auth')
 export class AuthController {
@@ -29,8 +28,8 @@ export class AuthController {
   }
 
   @Post('/login')
-  logIn(@Body() createAuthDto: CreateAuthDto,@Res() res:Response) {
-    return this.authService.logIn(createAuthDto,res);
+  logIn(@Body() createAuthDto: CreateAuthDto, @Res() res: Response) {
+    return this.authService.logIn(createAuthDto, res);
   }
 
   @Roles(Role.User)
