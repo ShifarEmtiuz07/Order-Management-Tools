@@ -10,13 +10,13 @@ import {
 export class Category {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+  @Column({nullable:true})
   nameBn: string;
-  @Column()
+  @Column({nullable:true})
   nameEn: string;
-  @Column()
+  @Column({nullable:true})
   slug: string;
-  @Column()
+  @Column({nullable:true})
   categoryImage: string;
   @CreateDateColumn({
     type: 'timestamp',

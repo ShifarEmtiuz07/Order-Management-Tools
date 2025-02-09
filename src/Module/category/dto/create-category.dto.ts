@@ -1,7 +1,17 @@
+import { IsNotEmpty, IsString } from 'class-validator';
+
 export class CreateCategoryDto {
-   
-    name_bn:string;
-    name_en:string;
-    slug:string;
-    categoryImage:string
+  @IsNotEmpty()
+  @IsString()
+  nameBn: string;
+
+  @IsString()
+  @IsNotEmpty()
+  nameEn: string;
+
+  @IsString()
+  @IsNotEmpty()
+  slug: string;
+
+  categoryImage: string;
 }

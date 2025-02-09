@@ -1,23 +1,24 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
-  Query,
+  Controller,
   DefaultValuePipe,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs-extra';
+import { extname } from 'path';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
-import * as fs from 'fs-extra';
 
 @Controller('category')
 export class CategoryController {
@@ -41,7 +42,7 @@ export class CategoryController {
       const format = year + month + day + second;
       const ext = extname(file.originalname);
       const baseName = file.originalname.replace(ext, '');
-      fileName = createCategoryDto.name_en + '-' + format + ext;
+      fileName = createCategoryDto.slug + '-' + format + ext;
       const filePath = `./categorysUpload/${fileName}`;
       await fs.writeFile(filePath, file.buffer);
     }
@@ -67,11 +68,48 @@ export class CategoryController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  @UseInterceptors(FileInterceptor('file'))
+  async update(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoryService.update(+id, updateCategoryDto);
+    const category = await this.categoryService.findOne(id);
+    if (!category) {
+      throw new NotFoundException('category not found');
+    }
+
+    //if one and only when files && database has categoryImage then delete the database image
+
+    if (file && file.originalname && category.categoryImage) {
+      const filePath = `./categorysUpload/${category.categoryImage}`;
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const second = date.getMilliseconds().toString().padStart(2, '0');
+    const format = year + month + day + second;
+    let formatedName: string;
+    if (file && file.originalname) {
+      const format = year + month + day + second;
+      const ext = extname(file.originalname);
+      const baseName = file.originalname.replace(ext, '');
+      formatedName = updateCategoryDto.slug + '-' + format + ext;
+      const filePath = `./categorysUpload/${formatedName}`;
+      await fs.writeFile(filePath, file.buffer);
+    }
+    const fileName =
+      file && file.originalname ? formatedName : category.categoryImage;
+    return this.categoryService.update(+id, {
+      ...updateCategoryDto,
+      categoryImage: fileName,
+    });
   }
 
   @Delete(':id')
