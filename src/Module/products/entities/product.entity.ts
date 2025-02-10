@@ -1,10 +1,14 @@
 import { Category } from 'src/Module/category/entities/category.entity';
+import { Inventory } from 'src/Module/inventory/entities/inventory.entity';
+
+
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -21,7 +25,7 @@ export class Product {
   slug: string;
   @Column()
   packSize: string;
-  @Column({unique:true})
+  @Column({ unique: true })
   productCode: string;
   @Column()
   price: number;
@@ -33,7 +37,7 @@ export class Product {
   searchTag: string;
   @Column()
   productStatus: boolean;
-  @Column({nullable:true})
+  @Column({ nullable: true })
   productImage: string;
 
   @CreateDateColumn({
@@ -48,8 +52,10 @@ export class Product {
   })
   updateAt: Date;
 
-  @ManyToOne(()=>Category,(category)=>category.productCode)
-  @JoinColumn({name:'categoryId'})
-  category:Category;
+  @ManyToOne(() => Category, (category) => category.productCode)
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
+  @OneToOne(() => Inventory, (inventory) => inventory.product)
+  inventory: Inventory;
 }

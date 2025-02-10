@@ -6,6 +6,8 @@ import { DatabaseModule } from './DB-Connection/database.module';
 import { EmployeeModule } from './Module/employee/employee.module';
 import { CategoryModule } from './Module/category/category.module';
 import { ProductsModule } from './Module/products/products.module';
+import { InventoryModule } from './Module/inventory/inventory.module';
+import { CustomerModule } from './Module/customer/customer.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { ProductsModule } from './Module/products/products.module';
     EmployeeModule,
     CategoryModule,
     ProductsModule,
+    InventoryModule,
+    CustomerModule
   ],
   controllers: [AppController],
   providers: [AppService],
