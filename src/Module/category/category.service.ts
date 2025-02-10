@@ -23,11 +23,11 @@ export class CategoryService {
     limit: number = 10,
     searchTerm,
   ): Promise<{
-    status: number;
-    currentPage: number;
-    totalPages: number;
-    message: string;
-    data: Category[];
+    status: number,
+    currentPage: number,
+    totalPages: number,
+    message: string,
+    data: Category[],
   }> {
     let queryBuilder = await this.categoryRepository
       .createQueryBuilder('category')

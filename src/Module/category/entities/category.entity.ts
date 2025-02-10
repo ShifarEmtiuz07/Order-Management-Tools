@@ -1,7 +1,10 @@
+import { Product } from 'src/Module/products/entities/product.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -10,13 +13,13 @@ import {
 export class Category {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({nullable:true})
+  @Column({ nullable: true })
   nameBn: string;
-  @Column({nullable:true})
+  @Column({ nullable: true })
   nameEn: string;
-  @Column({nullable:true})
+  @Column({ nullable: true })
   slug: string;
-  @Column({nullable:true})
+  @Column({ nullable: true })
   categoryImage: string;
   @CreateDateColumn({
     type: 'timestamp',
@@ -29,4 +32,12 @@ export class Category {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   updatedAt: Date;
+
+
+
+  @OneToMany(() => Product, (product) => product.category, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({referencedColumnName: 'productCode'})
+  productCode: Product[];
 }

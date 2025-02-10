@@ -43,7 +43,7 @@ export class CategoryController {
       const ext = extname(file.originalname);
       const baseName = file.originalname.replace(ext, '');
       fileName = createCategoryDto.slug + '-' + format + ext;
-      const filePath = `./categorysUpload/${fileName}`;
+      const filePath = `./categoriesUpload/${fileName}`;
       await fs.writeFile(filePath, file.buffer);
     }
 
@@ -82,7 +82,7 @@ export class CategoryController {
     //if one and only when files && database has categoryImage then delete the database image
 
     if (file && file.originalname && category.categoryImage) {
-      const filePath = `./categorysUpload/${category.categoryImage}`;
+      const filePath = `./categoriesUpload/${category.categoryImage}`;
 
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -101,7 +101,7 @@ export class CategoryController {
       const ext = extname(file.originalname);
       const baseName = file.originalname.replace(ext, '');
       formatedName = updateCategoryDto.slug + '-' + format + ext;
-      const filePath = `./categorysUpload/${formatedName}`;
+      const filePath = `./categoriesUpload/${formatedName}`;
       await fs.writeFile(filePath, file.buffer);
     }
     const fileName =
