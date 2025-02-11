@@ -1,3 +1,4 @@
+import { RolesGuard } from 'src/utils/roles.guard';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +17,7 @@ export class InventoryService {
     try {
       const inventory =
         await this.inventoryRepository.create(createInventoryDto);
+      // console.log(inventory)
       const savedEntity = await this.inventoryRepository.save(inventory);
       return savedEntity;
     } catch (error) {
@@ -26,11 +28,36 @@ export class InventoryService {
   }
 
   async findAll() {
-    return await this.inventoryRepository.find();
+    return await this.inventoryRepository.find({
+      relations: ['productCode'],
+      select: {
+        id: true,
+        productQuantity: true,
+        productCode: {
+          productNameEn: true,
+          productNameBn: true,
+          packSize: true,
+          productCode: true,
+        },
+      },
+    });
   }
 
   async findOne(id: number) {
-    return await this.inventoryRepository.findOne({ where: { id: id } });
+    return await this.inventoryRepository.findOne({
+      where: { id: id },
+      relations: ['productCode'],
+      select: {
+        id: true,
+        productQuantity: true,
+        productCode: {
+          productNameEn: true,
+          productNameBn: true,
+          packSize: true,
+          productCode: true,
+        },
+      },
+    });
   }
 
   async update(id: number, updateInventoryDto: UpdateInventoryDto) {
@@ -44,11 +71,10 @@ export class InventoryService {
     return updatedEntity;
   }
 
- async remove(id: number) {
+  async remove(id: number) {
     const inventory = await this.inventoryRepository.findOne({
       where: { id: id },
     });
-    return await this.inventoryRepository.remove(inventory)
-
+    return await this.inventoryRepository.remove(inventory);
   }
 }

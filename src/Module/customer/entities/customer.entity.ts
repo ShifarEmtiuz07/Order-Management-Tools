@@ -1,7 +1,9 @@
+import { Order } from 'src/Module/order/entities/order.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -35,4 +37,7 @@ export class Customer {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   updatedAt: Date;
+
+  @OneToMany(()=>Order,(order)=>order.customerId)
+  order:Order[]
 }

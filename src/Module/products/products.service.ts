@@ -36,7 +36,7 @@ export class ProductsService {
 
     if (searchTerm) {
       queryBuilder.where(
-        'product.nameBn ILIKE :searchTerm OR  product.nameEn ILIKE :searchTerm OR product.slug ILIKE :searchTerm OR product.searchTag ILIKE :searchTerm',
+        'product.productNameBn ILIKE :searchTerm OR  product.productNameEn ILIKE :searchTerm OR product.productSlug ILIKE :searchTerm OR product.searchTag ILIKE :searchTerm',
         { searchTerm: `%${searchTerm}%` },
       );
     }
@@ -70,7 +70,7 @@ export class ProductsService {
       const product = await this.productRepository.findOne({
         where: { productCode },
       });
-      console.log(product)
+      // console.log(product)
       Object.assign(product, updateProductDto);
       const updatedProduct = await this.productRepository.save(product);
       return {

@@ -1,13 +1,21 @@
 import { UserRole } from 'src/enum/role.enum';
 import { OtpToken } from 'src/Module/auth/entities/otpToken.entity';
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Order } from 'src/Module/order/entities/order.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Employee {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   employeeId: string;
   @Column()
   name: string;
@@ -39,7 +47,7 @@ export class Employee {
   employeeStatus: string;
   @Column({ nullable: true })
   employeeImage: string;
-  @Column({type: 'simple-array', nullable: true })
+  @Column({ type: 'simple-array', nullable: true })
   employeeAvatar: string[];
   @Column()
   password: string;
@@ -65,10 +73,9 @@ export class Employee {
   })
   public updated_at: Date;
 
-// @OneToMany(()=>OtpToken,(otpToken)=>otpToken.employee)
-// otpToken:OtpToken
+  // @OneToMany(()=>OtpToken,(otpToken)=>otpToken.employee)
+  // otpToken:OtpToken
 
-
-
-
+  @OneToMany(() => Order, (order) => order.employee)
+  order: Order[];
 }

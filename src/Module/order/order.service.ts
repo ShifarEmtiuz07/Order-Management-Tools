@@ -5,7 +5,15 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 @Injectable()
 export class OrderService {
   create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const second = date.getMilliseconds().toString().padStart(2, '0');
+    const format = year + month + day + second;
+
+
+
   }
 
   findAll() {

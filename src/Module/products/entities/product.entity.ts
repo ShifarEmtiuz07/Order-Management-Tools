@@ -1,5 +1,6 @@
 import { Category } from 'src/Module/category/entities/category.entity';
 import { Inventory } from 'src/Module/inventory/entities/inventory.entity';
+import { Order } from 'src/Module/order/entities/order.entity';
 
 
 import {
@@ -17,12 +18,12 @@ import {
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
-  nameEn: string;
-  @Column()
-  nameBn: string;
-  @Column()
-  slug: string;
+  @Column({nullable:true})
+  productNameEn: string;
+  @Column({nullable:true})
+  productNameBn: string;
+  @Column({nullable:true})
+  productSlug: string;
   @Column()
   packSize: string;
   @Column({ unique: true })
@@ -56,6 +57,10 @@ export class Product {
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
-  @OneToOne(() => Inventory, (inventory) => inventory.product)
+  @OneToOne(() => Inventory, (inventory) => inventory.productCode)
   inventory: Inventory;
+  
+  @ManyToOne(()=>Order,(order)=>order.product)
+  order:Order
+
 }

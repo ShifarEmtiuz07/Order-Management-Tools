@@ -1,4 +1,3 @@
-
 import { Product } from 'src/Module/products/entities/product.entity';
 import {
   Column,
@@ -28,7 +27,7 @@ export class Inventory {
   })
   updatedAt: Date;
 
-  @OneToOne(()=>Product,(product)=>product.inventory)
-  @JoinColumn({name:'productCode',referencedColumnName:'productCode'})
-  product:Product
+  @OneToOne(() => Product, (product) => product.inventory)
+  @JoinColumn({ name: 'productCode', referencedColumnName: 'productCode' })
+  productCode: Product;
 }
