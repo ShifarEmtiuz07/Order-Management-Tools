@@ -1,7 +1,12 @@
-export class CreateOrderItemsDto{
+import { IsNumber, IsString } from 'class-validator';
+import { Product } from 'src/Module/products/entities/product.entity';
 
-    productId:string;
-    nameEn:string;
-    nameBn:string;
-    
+export class CreateOrderItemsDto {
+  productCode: Product;
+  @IsString()
+  productNameEn: string;
+  @IsString()
+  productNameBn: string;
+  @IsNumber()
+  productQuantity: number;
 }

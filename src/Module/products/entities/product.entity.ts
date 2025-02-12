@@ -1,6 +1,7 @@
 import { Category } from 'src/Module/category/entities/category.entity';
 import { Inventory } from 'src/Module/inventory/entities/inventory.entity';
 import { Order } from 'src/Module/order/entities/order.entity';
+import { OrderItem } from 'src/Module/order/entities/orderItems.entity';
 
 
 import {
@@ -9,6 +10,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -30,9 +32,9 @@ export class Product {
   productCode: string;
   @Column()
   price: number;
-  @Column()
+  @Column({nullable:true})
   discount: number;
-  @Column()
+  @Column({nullable:true})
   discountType: string;
   @Column()
   searchTag: string;
@@ -60,7 +62,10 @@ export class Product {
   @OneToOne(() => Inventory, (inventory) => inventory.productCode)
   inventory: Inventory;
   
-  @ManyToOne(()=>Order,(order)=>order.product)
-  order:Order
+  // @ManyToOne(()=>Order,(order)=>order.product)
+  // order:Order
+
+  @OneToMany(()=>OrderItem,(orderItem)=>orderItem.productCode)
+  orderItem:OrderItem;
 
 }

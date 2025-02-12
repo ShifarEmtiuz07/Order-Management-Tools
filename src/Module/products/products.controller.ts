@@ -41,7 +41,7 @@ export class ProductsController {
       const format = year + month + day + second;
       const ext = extname(file.originalname);
       const baseName = file.originalname.replace(ext, '');
-      fileName = createProductDto.slug + '-' + format + ext;
+      fileName = createProductDto.productSlug + '-' + format + ext;
       const filePath = `./productsUpload/${fileName}`;
       await fs.writeFile(filePath, file.buffer);
     }
@@ -98,7 +98,7 @@ export class ProductsController {
       const format = year + month + day + second;
       const ext = extname(file.originalname);
       const baseName = file.originalname.replace(ext, '');
-      fileName = updateProductDto.slug + '-' + format + ext;
+      fileName = updateProductDto.productSlug + '-' + format + ext;
       const filePath = `./productsUpload/${fileName}`;
       await fs.writeFile(filePath, file.buffer);
     }

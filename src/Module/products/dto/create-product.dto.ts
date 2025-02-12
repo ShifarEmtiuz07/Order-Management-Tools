@@ -5,9 +5,9 @@ export class CreateProductDto {
   @IsString()
   productNameEn: string;
   @IsString()
-  nameBn: string;
+  productNameBn: string;
   @IsString()
-  slug: string;
+  productSlug: string;
   @IsString()
   packSize: string;
   @IsString()

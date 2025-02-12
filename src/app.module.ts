@@ -19,7 +19,7 @@ import { OrderModule } from './Module/order/order.module';
     ProductsModule,
     InventoryModule,
     CustomerModule,
-    OrderModule
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

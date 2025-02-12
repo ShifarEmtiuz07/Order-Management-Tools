@@ -61,9 +61,9 @@ export class Order {
   @JoinColumn({name:'employeeId',referencedColumnName:'employeeId'})
   employee:Employee;
 
-  @OneToMany(()=>Product,(product)=>product.order)
-  @JoinColumn({name:'products',referencedColumnName:'productCode'})
-  product:Product[]
+  // @OneToMany(()=>Product,(product)=>product.order)
+  // @JoinColumn({name:'products',referencedColumnName:'productCode'})
+  // product:Product[]
 
   @ManyToOne(()=>Customer,(customer)=>customer.order)
   @JoinColumn({name:'customerId',referencedColumnName:'customerId'})
