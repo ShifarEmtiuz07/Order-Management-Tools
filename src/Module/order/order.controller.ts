@@ -33,8 +33,5 @@ export class OrderController {
     return this.orderService.remove(+id);
   }
 
-  @Post('checkout')
-  createCheckout(@Body() createOrderItemsDto:CreateOrderItemsDto[]){
-    return this.orderService.createCheckout(createOrderItemsDto);
-  }
+
 }

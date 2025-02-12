@@ -34,52 +34,5 @@ export class OrderService {
   remove(id: number) {
     return `This action removes a #${id} order`;
   }
-  async createCheckout(createOrderItemsDto) {
-    const orderNumber = generateOrderNumber();
 
-    createOrderItemsDto.map(async (item) => {
-      const orderItem = await this.productsService.findOne(item.productCode);
-      let singleItemPrice:number,discount:number;
-
-      if (orderItem.discount) {
-        if (orderItem.discountType == 'taka') {
-          singleItemPrice = orderItem.price - orderItem.discount;
-          discount=orderItem.discount
-          
-        } else if (orderItem.discountType == 'percentage') {
-          const singleItemDiscount:number =( orderItem.price * (orderItem.discount / 100));
-           
-          singleItemPrice = orderItem.price - singleItemDiscount;
-          discount=singleItemDiscount* item.productQuantity
-          
-        }
-      }
-      const subTotal = orderItem.discount
-        ? singleItemPrice * item.productQuantity
-        : orderItem.price * item.productQuantity;
-
-      console.log(`subtotal:${subTotal}`)
-
-      item.subTotal = subTotal;
-      item.orderNumber = orderNumber;
-
-      console.log(`orderNumber:${ item.orderNumber}`)
-
-
-      const singleOrderitem = await this.orderItemRepository.create({
-        ...item,
-        subTotal: Math.round(subTotal),
-        orderNumber: item.orderNumber,
-        discount:Math.round(discount)
-        
-      });
-      const savedOrderItem =
-        await this.orderItemRepository.save(singleOrderitem);
-    });
-
-    // const  =
-    //   await this.orderItemRepository.create(createOrderItemsDto);
-    // const savedOrderItem = await this.orderItemRepository.save(orderItem);
-    // return savedOrderItem;
-  }
 }

@@ -1,12 +1,21 @@
 import { Product } from 'src/Module/products/entities/product.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
-//   @Column()
-//   productId: string;
+  //   @Column()
+  //   productId: string;
   @Column()
   productNameEn: string;
   @Column()
@@ -15,15 +24,27 @@ export class OrderItem {
   productQuantity: number;
 
   @Column()
-  orderNumber:string
+  orderNumber: string;
 
   @Column()
-  subTotal:number;
+  subTotal: number;
 
-  @Column({nullable:true})
-  discount:number;
+  @Column({ nullable: true })
+  discount: number;
 
-  @ManyToOne(()=>Product,(product)=>product.orderItem)
-  @JoinColumn({name:'productId',referencedColumnName:'productCode'})
-  productCode:Product;
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
+  createdAt: Date;
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+  })
+  updatedAt: Date;
+
+  @ManyToOne(() => Product, (product) => product.orderItem)
+  @JoinColumn({ name: 'productId', referencedColumnName: 'productCode' })
+  productCode: Product;
 }
