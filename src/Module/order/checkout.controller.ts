@@ -6,11 +6,13 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { CreateOrderItemsDto } from './dto/create-orderItems.dto';
 import { get } from 'http';
+import { UpdateOrderItemsDto } from './dto/update-orderItems.dto';
 
 @Controller('checkout')
 export class CheckoutController {
@@ -33,5 +35,11 @@ export class CheckoutController {
   @Get(':orderNumber')
   findOne(@Param('orderNumber') orderNumber: string) {
     return this.checkoutService.findOne(orderNumber);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id:number,
+@Body() updateOrderItemsDto:UpdateOrderItemsDto){
+    return this.checkoutService.update(id,updateOrderItemsDto)
   }
 }
