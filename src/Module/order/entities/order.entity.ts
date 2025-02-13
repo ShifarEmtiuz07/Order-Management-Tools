@@ -1,6 +1,6 @@
+import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Customer } from 'src/Module/customer/entities/customer.entity';
 import { Employee } from 'src/Module/employee/entities/employee.entity';
-import { Product } from 'src/Module/products/entities/product.entity';
 import { OrderStatus } from 'src/utils/orderStatus.enum';
 import {
   Column,
@@ -17,8 +17,6 @@ import {
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
-  orderNumber: string;
   @Column()
   customerName: string;
   @Column()
@@ -38,13 +36,21 @@ export class Order {
   @Column()
   deliveryDate: Date;
   @Column()
+  totalOrderPrice: number;
+  @Column()
+  totalPurchesAmount: number;
+  @Column()
+  paidAmount:number;
+  @Column()
+  dueAmount:number;
+  @Column()
   paymentStatus: string;
+  // @Column()
+  // orderCreatedBY: string;
   @Column()
-  orderCreatedBY: string;
-  @Column()
-  deliveryCharge: string;
-  @Column({nullable:true})
-  courier:string;
+  deliveryCharge: number;
+  @Column({ nullable: true })
+  courier: string;
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
@@ -57,18 +63,19 @@ export class Order {
   })
   updatedAt: Date;
 
-  @ManyToOne(()=>Employee,(employee)=>employee.order)
-  @JoinColumn({name:'employeeId',referencedColumnName:'employeeId'})
-  employee:Employee;
+  @ManyToOne(() => Employee, (employee) => employee.order)
+  @JoinColumn({ name: 'employeeId', referencedColumnName: 'employeeId' })
+  employee: Employee;
 
   // @OneToMany(()=>Product,(product)=>product.order)
   // @JoinColumn({name:'products',referencedColumnName:'productCode'})
   // product:Product[]
 
-  @ManyToOne(()=>Customer,(customer)=>customer.order)
-  @JoinColumn({name:'customerId',referencedColumnName:'customerId'})
-  customerId:Customer;
+  @ManyToOne(() => Customer, (customer) => customer.order)
+  @JoinColumn({ name: 'customerId', referencedColumnName: 'customerId' })
+  customerId: Customer;
 
-
-
+  @OneToMany(() => Checkout, (checkout) => checkout.order)
+  @JoinColumn({ name: 'orderNumber', referencedColumnName: 'orderNumber' })
+  checkout: Checkout[];
 }

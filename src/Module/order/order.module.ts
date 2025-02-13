@@ -4,14 +4,14 @@ import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
-import { OrderItem } from './entities/orderItems.entity';
+
 import { Product } from '../products/entities/product.entity';
-import { CheckoutService } from './checkout.service';
-import { CheckoutController } from './checkout.controller';
+import { Checkout } from '../checkout/entities/checkout.entity';
+import { CheckoutService } from '../checkout/checkout.service';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Order,OrderItem,Product])],
-  controllers: [OrderController,CheckoutController],
-  providers: [OrderService,ProductsService,CheckoutService],
+  imports: [TypeOrmModule.forFeature([Order, Product,Checkout])],
+  controllers: [OrderController],
+  providers: [OrderService, ProductsService,CheckoutService],
 })
 export class OrderModule {}

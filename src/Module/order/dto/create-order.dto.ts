@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
+import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Customer } from 'src/Module/customer/entities/customer.entity';
 import { Employee } from 'src/Module/employee/entities/employee.entity';
 import { Product } from 'src/Module/products/entities/product.entity';
@@ -25,14 +26,19 @@ export class CreateOrderDto {
   shippingThana: string;
   @IsString()
   orderStatus: OrderStatus;
-  // @IsString()
-  // deliveryDate: Date;
+  @IsString()
+  deliveryDate: Date;
   @IsString()
   paymentStatus: string;
+  @IsNumber()
+  paidAmount:number;
   @IsString()
   employee: Employee;
+  // orderCreatedBY: string;
+  // employee: Employee;
+
   @IsString()
   deliveryCharge: number;
-  @IsString()
-  product: Product[];
+
+  orderNumber: string;
 }

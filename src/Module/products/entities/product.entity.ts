@@ -1,7 +1,8 @@
 import { Category } from 'src/Module/category/entities/category.entity';
+import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Inventory } from 'src/Module/inventory/entities/inventory.entity';
 import { Order } from 'src/Module/order/entities/order.entity';
-import { OrderItem } from 'src/Module/order/entities/orderItems.entity';
+
 
 
 import {
@@ -65,7 +66,7 @@ export class Product {
   // @ManyToOne(()=>Order,(order)=>order.product)
   // order:Order
 
-  @OneToMany(()=>OrderItem,(orderItem)=>orderItem.productCode)
-  orderItem:OrderItem;
+  @OneToMany(()=>Checkout,(checkout)=>checkout.productCode)
+  orderItem:Checkout;
 
 }

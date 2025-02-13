@@ -10,17 +10,17 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { CreateOrderItemsDto } from './dto/create-orderItems.dto';
-import { get } from 'http';
-import { UpdateOrderItemsDto } from './dto/update-orderItems.dto';
+
+import { CreateCheckoutDto } from './dto/create-checkout.dto';
+import { UpdateCheckoutDto } from './dto/update-checkout.dto';
 
 @Controller('checkout')
 export class CheckoutController {
   constructor(private readonly checkoutService: CheckoutService) {}
 
   @Post()
-  create(@Body() createOrderItemsDto: CreateOrderItemsDto[]) {
-    return this.checkoutService.createCheckout(createOrderItemsDto);
+  create(@Body() createCheckoutDto: CreateCheckoutDto[]) {
+    return this.checkoutService.createCheckout(createCheckoutDto);
   }
 
   @Get()
@@ -29,7 +29,7 @@ export class CheckoutController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('searchTerm') searchTerm: string,
   ) {
-    return this.checkoutService.getCheckout(page,limit,searchTerm);
+    return this.checkoutService.getCheckout(page, limit, searchTerm);
   }
 
   @Get(':orderNumber')
@@ -38,8 +38,10 @@ export class CheckoutController {
   }
 
   @Patch(':id')
-  update(@Param('id') id:number,
-@Body() updateOrderItemsDto:UpdateOrderItemsDto){
-    return this.checkoutService.update(id,updateOrderItemsDto)
+  update(
+    @Param('id') id: number,
+    @Body() updateCheckoutDto: UpdateCheckoutDto,
+  ) {
+    return this.checkoutService.update(id, updateCheckoutDto);
   }
 }

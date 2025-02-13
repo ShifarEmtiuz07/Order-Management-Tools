@@ -1,4 +1,4 @@
-import { OrderItem } from 'src/Module/order/entities/orderItems.entity';
+
 import {
   BadRequestException,
   Injectable,
@@ -9,12 +9,13 @@ import { generateOrderNumber } from 'src/utils/order.util';
 import { Repository } from 'typeorm';
 import { ProductsService } from './../products/products.service';
 import { Product } from '../products/entities/product.entity';
+import { Checkout } from './entities/checkout.entity';
 
 @Injectable()
 export class CheckoutService {
   constructor(
-    @InjectRepository(OrderItem)
-    private readonly orderItemRepository: Repository<OrderItem>,
+    @InjectRepository(Checkout)
+    private readonly checkoutRepository: Repository<Checkout>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly productsService: ProductsService,
@@ -50,14 +51,14 @@ export class CheckoutService {
 
       console.log(`orderNumber:${item.orderNumber}`);
 
-      const singleOrderitem = await this.orderItemRepository.create({
+      const singleOrderitem = await this.checkoutRepository.create({
         ...item,
         subTotal: Math.round(subTotal),
         orderNumber: item.orderNumber,
         discount: Math.round(discount),
       });
       const savedOrderItem =
-        await this.orderItemRepository.save(singleOrderitem);
+        await this.checkoutRepository.save(singleOrderitem);
     });
   }
 
@@ -71,16 +72,16 @@ export class CheckoutService {
     totalPages: number;
     totalCount: number;
     message: string;
-    result: OrderItem[];
+    result: Checkout[];
   }> {
     try {
-      const queryBuilder = await this.orderItemRepository
-        .createQueryBuilder('orderItem')
-        .orderBy('orderItem.createdAt', 'DESC');
+      const queryBuilder = await this.checkoutRepository
+        .createQueryBuilder('checkout')
+        .orderBy('checkout.createdAt', 'DESC');
 
       if (searchTerm) {
         queryBuilder.where(
-          'orderItem.orderNumber ILIKE :searchTerm OR orderItem.productNameEn ILIKE :searchTerm OR orderItem.productNameBn ILIKE :searchTerm',
+          'checkout.orderNumber ILIKE :searchTerm OR checkout.productNameEn ILIKE :searchTerm OR checkout.productNameBn ILIKE :searchTerm',
           { searchTerm: `%${searchTerm}%` },
         );
       }
@@ -108,7 +109,7 @@ export class CheckoutService {
   }
 
   async findOne(orderNumber: string) {
-    const orderItem = await this.orderItemRepository.find({
+    const orderItem = await this.checkoutRepository.find({
       where: { orderNumber: orderNumber },
     });
     return {
@@ -120,21 +121,21 @@ export class CheckoutService {
 
   async update(id: number, updateOrderItemsDto) {
     if (updateOrderItemsDto.productQuantity < 1) {
-      return await this.orderItemRepository.delete(id);
+      return await this.checkoutRepository.delete(id);
     }
 
-    const orderItem = await this.orderItemRepository.findOne({
+    const orderItem = await this.checkoutRepository.findOne({
       where: { id: id },
       relations: ['productCode'],
     });
-    console.log(orderItem);
+    // console.log(orderItem);
     //
 
     const orderProduct = await this.productRepository.findOne({
       where: { productCode: orderItem.productCode.productCode },
     });
-    console.log(orderProduct);
-    // const orderItem = await this.productsService.findOne();
+    // console.log(orderProduct);
+    
     let singleItemPrice: number, discount: number;
 
     if (orderProduct.discount) {
@@ -155,13 +156,13 @@ export class CheckoutService {
       ? singleItemPrice * updateOrderItemsDto.productQuantity
       : orderProduct.price * updateOrderItemsDto.productQuantity;
 
-    console.log(`subtotal:${subTotal}`);
+    // console.log(`subtotal:${subTotal}`);
 
     updateOrderItemsDto.subTotal = Math.floor(subTotal);
 
     Object.assign(orderItem, updateOrderItemsDto);
 
-    const updatedOrderItems = await this.orderItemRepository.save(orderItem);
+    const updatedOrderItems = await this.checkoutRepository.save(orderItem);
     return {
       status: 200,
       message: 'Order items were updated!',
