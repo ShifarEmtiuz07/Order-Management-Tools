@@ -24,37 +24,55 @@ export class OrderService {
     private readonly checkoutService: CheckoutService,
   ) {}
   async create(createOrderDto: CreateOrderDto) {
-    const orderNumber = createOrderDto.orderNumber;
-    console.log(orderNumber);
-    const orders = await this.checkoutService.findOne(orderNumber);
-    console.log(orders);
-    // orders.map(()=>{
+    try{
 
-    // })
-    let allProducts=[];
-    let totalOrderPrice: number;
-    orders.result.map((order) => {
-      totalOrderPrice = totalOrderPrice + order.subTotal;
-      allProducts.push(order.productCode.productCode);
-    });
+      const orderNumber = createOrderDto.orderNumber;
+      console.log(orderNumber);
+      const orders = await this.checkoutRepository.find({where:{orderNumber},relations:['order']});
+     
+      //console.log(orders);
+      // orders.map(()=>{
+  
+      // })
+      let allProducts=[];
+      let totalOrderPrice: number=0;
+      // orders.map((order) => {
+      //   totalOrderPrice = totalOrderPrice + order.subTotal;
+       
+        
+        
+      // });
 
-    const totalPurchesAmount = totalOrderPrice + createOrderDto.deliveryCharge;
-    const dueAmount = totalPurchesAmount - createOrderDto.paidAmount;
-    if (totalPurchesAmount > createOrderDto.paidAmount) {
-      createOrderDto.paymentStatus = 'partial';
-    } else if (totalPurchesAmount === createOrderDto.paidAmount) {
-      createOrderDto.paymentStatus = 'paid';
+      for (const order of orders){
+        totalOrderPrice=totalOrderPrice+order.subTotal
+        allProducts.push(order.productCode)
+
+      }
+      //console.log(` aa: ${allProducts}`)
+  
+      const totalPurchesAmount = totalOrderPrice + createOrderDto.deliveryCharge;
+      const dueAmount = totalPurchesAmount - createOrderDto.paidAmount;
+      if (totalPurchesAmount > createOrderDto.paidAmount) {
+        createOrderDto.paymentStatus = 'partial';
+      } else if (totalPurchesAmount === createOrderDto.paidAmount) {
+        createOrderDto.paymentStatus = 'paid';
+      }
+  
+      const orderEntity = await this.orderRepository.create({
+        ...createOrderDto,
+        totalOrderPrice,
+        totalPurchesAmount,
+        dueAmount,
+        checkout: allProducts,
+      });
+      console.log(orderEntity)
+      // const savedOrder = await this.orderRepository.save(orderEntity);
+      // return savedOrder;
+
+    }catch(error){
+      console.log(error.message)
     }
-
-    const orderEntity = await this.orderRepository.create({
-      ...createOrderDto,
-      totalOrderPrice,
-      totalPurchesAmount,
-      dueAmount,
-      checkout: allProducts,
-    });
-    const savedOrder = await this.orderRepository.save(orderEntity);
-    return savedOrder;
+   
   }
 
   findAll() {

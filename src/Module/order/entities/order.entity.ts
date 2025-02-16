@@ -9,6 +9,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -45,8 +46,13 @@ export class Order {
   dueAmount:number;
   @Column()
   paymentStatus: string;
+
+  @Column({nullable:true})
+  orderNumber:string;
   // @Column()
   // orderCreatedBY: string;
+  @Column({type:'simple-array', nullable:true})
+  allProducts:string[];
   @Column()
   deliveryCharge: number;
   @Column({ nullable: true })
@@ -75,7 +81,7 @@ export class Order {
   @JoinColumn({ name: 'customerId', referencedColumnName: 'customerId' })
   customerId: Customer;
 
-  @OneToMany(() => Checkout, (checkout) => checkout.order)
-  @JoinColumn({ name: 'orderNumber', referencedColumnName: 'orderNumber' })
+  @OneToOne(() => Checkout, (checkout) => checkout.order)
+  @JoinColumn({ name: 'orderitems'})
   checkout: Checkout[];
 }

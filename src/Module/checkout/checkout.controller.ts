@@ -34,7 +34,7 @@ export class CheckoutController {
 
   @Get(':orderNumber')
   findOne(@Param('orderNumber') orderNumber: string) {
-    return this.checkoutService.findOne(orderNumber);
+    return this.checkoutService.find(orderNumber);
   }
 
   @Patch(':id')

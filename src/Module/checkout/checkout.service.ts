@@ -108,9 +108,9 @@ export class CheckoutService {
     }
   }
 
-  async findOne(orderNumber: string) {
+  async find(orderNumber: string) {
     const orderItem = await this.checkoutRepository.find({
-      where: { orderNumber: orderNumber },
+      where: { orderNumber: orderNumber },relations:['productCode']
     });
     return {
       status: 200,
@@ -126,13 +126,13 @@ export class CheckoutService {
 
     const orderItem = await this.checkoutRepository.findOne({
       where: { id: id },
-      relations: ['productCode'],
+      relations: ['products'],
     });
     // console.log(orderItem);
     //
 
     const orderProduct = await this.productRepository.findOne({
-      where: { productCode: orderItem.productCode.productCode },
+      where: { productCode: orderItem.products[0].productCode },
     });
     // console.log(orderProduct);
     

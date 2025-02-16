@@ -6,8 +6,8 @@ import { Product } from 'src/Module/products/entities/product.entity';
 import { OrderStatus } from 'src/utils/orderStatus.enum';
 
 export class CreateOrderDto {
-  // @IsString()
-  // orderNumber: string;
+  @IsString()
+  orderNumber: string;
   @IsString()
   customerId: Customer;
   @IsString()
@@ -31,7 +31,7 @@ export class CreateOrderDto {
   @IsString()
   paymentStatus: string;
   @IsNumber()
-  paidAmount:number;
+  paidAmount: number;
   @IsString()
   employee: Employee;
   // orderCreatedBY: string;
@@ -40,5 +40,5 @@ export class CreateOrderDto {
   @IsString()
   deliveryCharge: number;
 
-  orderNumber: string;
+  checkout: Checkout[];
 }
