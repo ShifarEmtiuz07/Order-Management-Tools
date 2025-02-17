@@ -29,6 +29,7 @@ export class ProductsService {
     message: string;
     data: Product[];
   }> {
+    console.log('from api')
     let queryBuilder = await this.productRepository
       .createQueryBuilder('product')
       .orderBy('product.createdAt', 'DESC')

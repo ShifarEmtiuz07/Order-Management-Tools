@@ -10,9 +10,21 @@ import { InventoryModule } from './Module/inventory/inventory.module';
 import { CustomerModule } from './Module/customer/customer.module';
 import { OrderModule } from './Module/order/order.module';
 import { CheckoutModule } from './Module/checkout/checkout.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as  redisStore  from 'cache-manager-redis-store';
 
 @Module({
   imports: [
+    CacheModule.register({
+      max:1000,
+      ttl:60000,
+      isGlobal:true,
+      store:redisStore,
+      host:'localhost',
+      port:6379
+
+    }),
+
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     EmployeeModule,

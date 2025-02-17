@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { generateOrderNumber } from 'src/utils/order.util';
+import { generateCheckoutNumber, generateOrderNumber } from 'src/utils/order.util';
 import { Repository } from 'typeorm';
 import { ProductsService } from './../products/products.service';
 import { Product } from '../products/entities/product.entity';
@@ -22,7 +22,7 @@ export class CheckoutService {
   ) {}
 
   async createCheckout(createOrderItemsDto) {
-    const orderNumber = generateOrderNumber();
+    const checkoutNumber = generateCheckoutNumber();
 
     createOrderItemsDto.map(async (item) => {
       const orderItem = await this.productsService.findOne(item.productCode);
@@ -47,18 +47,19 @@ export class CheckoutService {
       console.log(`subtotal:${subTotal}`);
 
       item.subTotal = subTotal;
-      item.orderNumber = orderNumber;
+      item.checkoutNumber = checkoutNumber;
 
-      console.log(`orderNumber:${item.orderNumber}`);
+      console.log(`checkoutNumber:${item.checkoutNumber}`);
 
       const singleOrderitem = await this.checkoutRepository.create({
         ...item,
         subTotal: Math.round(subTotal),
-        orderNumber: item.orderNumber,
+        checkoutNumber: item.checkoutNumber,
         discount: Math.round(discount),
       });
       const savedOrderItem =
         await this.checkoutRepository.save(singleOrderitem);
+        return savedOrderItem;
     });
   }
 
@@ -81,7 +82,7 @@ export class CheckoutService {
 
       if (searchTerm) {
         queryBuilder.where(
-          'checkout.orderNumber ILIKE :searchTerm OR checkout.productNameEn ILIKE :searchTerm OR checkout.productNameBn ILIKE :searchTerm',
+          'checkout.checkoutNumber ILIKE :searchTerm OR checkout.productNameEn ILIKE :searchTerm OR checkout.productNameBn ILIKE :searchTerm',
           { searchTerm: `%${searchTerm}%` },
         );
       }
@@ -108,9 +109,9 @@ export class CheckoutService {
     }
   }
 
-  async find(orderNumber: string) {
+  async find(checkoutNumber: string) {
     const orderItem = await this.checkoutRepository.find({
-      where: { orderNumber: orderNumber },relations:['productCode']
+      where: { checkoutNumber: checkoutNumber },relations:['product']
     });
     return {
       status: 200,
@@ -126,13 +127,13 @@ export class CheckoutService {
 
     const orderItem = await this.checkoutRepository.findOne({
       where: { id: id },
-      relations: ['products'],
+      relations: ['product'],
     });
     // console.log(orderItem);
     //
 
     const orderProduct = await this.productRepository.findOne({
-      where: { productCode: orderItem.products[0].productCode },
+      where: { productCode: orderItem.productCode },
     });
     // console.log(orderProduct);
     

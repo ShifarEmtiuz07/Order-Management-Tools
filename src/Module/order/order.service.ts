@@ -24,59 +24,66 @@ export class OrderService {
     private readonly checkoutService: CheckoutService,
   ) {}
   async create(createOrderDto: CreateOrderDto) {
-    try{
+    try {
+      const checkoutNumber = createOrderDto.checkoutNumber;
+      //console.log(checkoutNumber);
+      const orders = await this.checkoutRepository.find({
+        where: { checkoutNumber },
+        relations: ['order'],
+      });
 
-      const orderNumber = createOrderDto.orderNumber;
-      console.log(orderNumber);
-      const orders = await this.checkoutRepository.find({where:{orderNumber},relations:['order']});
-     
       //console.log(orders);
-      // orders.map(()=>{
-  
-      // })
-      let allProducts=[];
-      let totalOrderPrice: number=0;
+      let checkoutProducts: Checkout[] = [];
+
       // orders.map((order) => {
-      //   totalOrderPrice = totalOrderPrice + order.subTotal;
-       
-        
-        
+
+      //   checkoutProducts.push(order);
+
+      //   //console.log(order);
       // });
 
-      for (const order of orders){
-        totalOrderPrice=totalOrderPrice+order.subTotal
-        allProducts.push(order.productCode)
+      let totalOrderPrice: number = 0;
+      // orders.map((order) => {
+      //   totalOrderPrice = totalOrderPrice + order.subTotal;
 
+      // });
+
+      for (const order of orders) {
+        totalOrderPrice = totalOrderPrice + order.subTotal;
+        checkoutProducts.push(order);
       }
+      //console.log(checkoutProducts);
       //console.log(` aa: ${allProducts}`)
-  
-      const totalPurchesAmount = totalOrderPrice + createOrderDto.deliveryCharge;
+
+      const totalPurchesAmount =
+        totalOrderPrice + createOrderDto.deliveryCharge;
       const dueAmount = totalPurchesAmount - createOrderDto.paidAmount;
       if (totalPurchesAmount > createOrderDto.paidAmount) {
         createOrderDto.paymentStatus = 'partial';
       } else if (totalPurchesAmount === createOrderDto.paidAmount) {
         createOrderDto.paymentStatus = 'paid';
       }
-  
+      const orderNumber = await generateOrderNumber();
+
       const orderEntity = await this.orderRepository.create({
         ...createOrderDto,
         totalOrderPrice,
         totalPurchesAmount,
         dueAmount,
-        checkout: allProducts,
+        orderNumber,
+        checkout: checkoutProducts,
       });
-      console.log(orderEntity)
-      // const savedOrder = await this.orderRepository.save(orderEntity);
-      // return savedOrder;
-
-    }catch(error){
-      console.log(error.message)
+      console.log(orderEntity);
+      const savedOrder = await this.orderRepository.save(orderEntity);
+      return savedOrder;
+    } catch (error) {
+      console.log(error.message);
     }
-   
   }
 
-  findAll() {
-    return `This action returns all order`;
+async  findAll() {
+  // console.log('from api')
+    return await this.orderRepository.find({relations:['employee','checkout']});
   }
 
   findOne(id: number) {

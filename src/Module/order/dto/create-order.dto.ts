@@ -7,7 +7,7 @@ import { OrderStatus } from 'src/utils/orderStatus.enum';
 
 export class CreateOrderDto {
   @IsString()
-  orderNumber: string;
+  checkoutNumber: string;
   @IsString()
   customerId: Customer;
   @IsString()
@@ -40,5 +40,5 @@ export class CreateOrderDto {
   @IsString()
   deliveryCharge: number;
 
-  checkout: Checkout[];
+  // checkout: Checkout;
 }

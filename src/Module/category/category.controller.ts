@@ -19,7 +19,9 @@ import { extname } from 'path';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
+@UseInterceptors(CacheInterceptor)
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

@@ -27,8 +27,8 @@ export class Checkout {
   @Column({nullable:true})
   productCode: string;
 
-  @Column()
-  orderNumber: string;
+  @Column({nullable:true})
+  checkoutNumber: string;
 
   @Column()
   subTotal: number;
@@ -48,10 +48,10 @@ export class Checkout {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Product, (product) => product.orderItem)
-  @JoinColumn({ name: 'productId' })
-  products: Product[];
+  @OneToOne(() => Product, (product) => product.orderItem)
+  @JoinColumn({ name: 'product' })
+  product: Product;
 
-  @OneToOne(() => Order, (order) => order.checkout)
+  @ManyToOne(() => Order, (order) => order.checkout)
   order: Order;
 }

@@ -41,18 +41,19 @@ export class Order {
   @Column()
   totalPurchesAmount: number;
   @Column()
-  paidAmount:number;
+  paidAmount: number;
   @Column()
-  dueAmount:number;
+  dueAmount: number;
   @Column()
   paymentStatus: string;
+  @Column({ nullable: true })
+  checkoutNumber: string;
 
-  @Column({nullable:true})
-  orderNumber:string;
+  @Column({ nullable: true })
+  orderNumber: string;
   // @Column()
   // orderCreatedBY: string;
-  @Column({type:'simple-array', nullable:true})
-  allProducts:string[];
+
   @Column()
   deliveryCharge: number;
   @Column({ nullable: true })
@@ -81,7 +82,7 @@ export class Order {
   @JoinColumn({ name: 'customerId', referencedColumnName: 'customerId' })
   customerId: Customer;
 
-  @OneToOne(() => Checkout, (checkout) => checkout.order)
-  @JoinColumn({ name: 'orderitems'})
+  @OneToMany(() => Checkout, (checkout) => checkout.order)
+  @JoinColumn({ name: 'checkoutItems' })
   checkout: Checkout[];
 }
