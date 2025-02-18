@@ -1,6 +1,7 @@
 import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Customer } from 'src/Module/customer/entities/customer.entity';
 import { Employee } from 'src/Module/employee/entities/employee.entity';
+import { Transaction } from 'src/Module/transaction/entities/transaction.entity';
 import { OrderStatus } from 'src/utils/orderStatus.enum';
 import {
   Column,
@@ -85,4 +86,9 @@ export class Order {
   @OneToMany(() => Checkout, (checkout) => checkout.order)
   @JoinColumn({ name: 'checkoutItems' })
   checkout: Checkout[];
+
+  @ManyToOne(()=>Transaction,(transaction)=>transaction.order)
+  transaction:Transaction[]
+
+
 }
