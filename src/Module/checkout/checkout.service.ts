@@ -1,11 +1,13 @@
-
 import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { generateCheckoutNumber, generateOrderNumber } from 'src/utils/order.util';
+import {
+  generateCheckoutNumber,
+  generateOrderNumber,
+} from 'src/utils/order.util';
 import { Repository } from 'typeorm';
 import { ProductsService } from './../products/products.service';
 import { Product } from '../products/entities/product.entity';
@@ -22,45 +24,61 @@ export class CheckoutService {
   ) {}
 
   async createCheckout(createOrderItemsDto) {
-    const checkoutNumber = generateCheckoutNumber();
+    try {
+      const checkoutNumber = generateCheckoutNumber();
 
-    createOrderItemsDto.map(async (item) => {
-      const orderItem = await this.productsService.findOne(item.productCode);
-      let singleItemPrice: number, discount: number;
+      createOrderItemsDto.map(async (item) => {
+        const orderItem = await this.productsService.findOne(item.productCode);
+        let singleItemPrice: number, discount: number;
 
-      if (orderItem.discount) {
-        if (orderItem.discountType == 'taka') {
-          singleItemPrice = orderItem.price - orderItem.discount;
-          discount = orderItem.discount;
-        } else if (orderItem.discountType == 'percentage') {
-          const singleItemDiscount: number =
-            orderItem.price * (orderItem.discount / 100);
+        if (orderItem.discount) {
+          if (orderItem.discountType == 'taka') {
+            singleItemPrice = orderItem.price - orderItem.discount;
+            discount = orderItem.discount;
+          } else if (orderItem.discountType == 'percentage') {
+            const singleItemDiscount: number =
+              orderItem.price * (orderItem.discount / 100);
 
-          singleItemPrice = orderItem.price - singleItemDiscount;
-          discount = singleItemDiscount * item.productQuantity;
+            singleItemPrice = orderItem.price - singleItemDiscount;
+            discount = singleItemDiscount * item.productQuantity;
+          }
         }
-      }
-      const subTotal = orderItem.discount
-        ? singleItemPrice * item.productQuantity
-        : orderItem.price * item.productQuantity;
+        const subTotal = orderItem.discount
+          ? singleItemPrice * item.productQuantity
+          : orderItem.price * item.productQuantity;
 
-      console.log(`subtotal:${subTotal}`);
+        // console.log(`subtotal:${subTotal}`);
 
-      item.subTotal = subTotal;
-      item.checkoutNumber = checkoutNumber;
+        item.subTotal = subTotal;
+        item.checkoutNumber = checkoutNumber;
 
-      console.log(`checkoutNumber:${item.checkoutNumber}`);
+        // console.log(`checkoutNumber:${item.checkoutNumber}`);
 
-      const singleOrderitem = await this.checkoutRepository.create({
-        ...item,
-        subTotal: Math.round(subTotal),
-        checkoutNumber: item.checkoutNumber,
-        discount: Math.round(discount),
+        const singleOrderitem = await this.checkoutRepository.create({
+          ...item,
+          subTotal: Math.round(subTotal),
+          checkoutNumber: item.checkoutNumber,
+          discount: Math.round(discount),
+        });
+        const savedOrderItem =
+          await this.checkoutRepository.save(singleOrderitem);
+
+        // return {
+        //   status: 201,
+        //   message: 'Checkout created successfully',
+        //   result: savedOrderItem,
+        // };
       });
-      const savedOrderItem =
-        await this.checkoutRepository.save(singleOrderitem);
-        return savedOrderItem;
-    });
+      return {
+        status: 201,
+        message: 'Checkout created successfully',
+      
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        error.message || 'Checkout creation failed',
+      );
+    }
   }
 
   async getCheckout(
@@ -111,7 +129,8 @@ export class CheckoutService {
 
   async find(checkoutNumber: string) {
     const orderItem = await this.checkoutRepository.find({
-      where: { checkoutNumber: checkoutNumber },relations:['product']
+      where: { checkoutNumber: checkoutNumber },
+      relations: ['product'],
     });
     return {
       status: 200,
@@ -136,7 +155,7 @@ export class CheckoutService {
       where: { productCode: orderItem.productCode },
     });
     // console.log(orderProduct);
-    
+
     let singleItemPrice: number, discount: number;
 
     if (orderProduct.discount) {

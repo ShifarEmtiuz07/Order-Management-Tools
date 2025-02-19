@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -20,7 +21,7 @@ export class Transaction {
   @Column()
   totalPurchesAmount: number;
   @Column()
-  paidAmount: number;
+  totalPaidAmount: number;
   @Column()
   dueAmount: number;
   @Column()
@@ -37,6 +38,6 @@ export class Transaction {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Order, (order) => order.transaction)
+  @ManyToOne(() => Order, (order) => order.transaction)
   order: Order;
 }

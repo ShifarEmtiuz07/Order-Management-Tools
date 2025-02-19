@@ -66,7 +66,7 @@ export class Product {
   // @ManyToOne(()=>Order,(order)=>order.product)
   // order:Order
 
-  @OneToOne(()=>Checkout,(checkout)=>checkout.product)
-  orderItem:Checkout;
+  @OneToMany(()=>Checkout,(checkout)=>checkout.product)
+  orderItem:Checkout[];
 
 }

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { Repository } from 'typeorm';
@@ -11,52 +15,78 @@ import { Transaction } from './entities/transaction.entity';
 export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
-    private readonly transactionRepository:Repository<Transaction>,
+    private readonly transactionRepository: Repository<Transaction>,
     @InjectRepository(Order)
-    private readonly orderRepository:Repository<Order>
+    private readonly orderRepository: Repository<Order>,
+  ) {}
+  async create(createTransactionDto: CreateTransactionDto) {
+    try {
+      const orderNumber = createTransactionDto.orderNumber;
+      // console.log(orderNumber)
 
-  ){}
- async create(createTransactionDto: CreateTransactionDto) {
+      const order = await this.orderRepository.findOne({
+        where: { orderNumber },
+      });
+      //  console.log(order)
 
-  try{
-    const orderNumber= createTransactionDto.orderNumber;
-    // console.log(orderNumber)
-    
-    
-   const order= await this.orderRepository.findOne({where:{orderNumber}})
-  //  console.log(order)
+      if (!order) {
+        throw new NotFoundException(`${order.orderNumber} not found`);
+      }
+      const orders = order.id;
+      let paymentStatus: string;
+      const totalPurchesAmount = order.totalPurchesAmount;
 
-   if(!order){
-    throw new NotFoundException(`${order.orderNumber} not found`)
-   }
-   let paymentStatus:string;
-   const totalPurchesAmount= order.totalPurchesAmount;
+      let dueAmount: number, totalPaid: number, totalPaidAmount: number;
 
-   const dueAmount = order.totalPurchesAmount - createTransactionDto.paidAmount;
-   if (order.totalPurchesAmount > createTransactionDto.paidAmount) {
-    paymentStatus = 'partial';
-  } else if (order.totalPurchesAmount === createTransactionDto.paidAmount) {
-   paymentStatus = 'paid';
-  }
-  const transactionNumber=generateTransactionNumber();
-  const transactionEntity= this.transactionRepository.create({
-    ...createTransactionDto,
-    totalPurchesAmount,
-    dueAmount,
-    transactionNumber,
-    paymentStatus,
-    order
-  });
+      const transactions = await this.transactionRepository.find({
+        where: { orderNumber },
+      });
+      const lastTransactions = transactions.length;
+      // console.log(lastTransactions)
 
-  const savedTransactionNumber=await this.transactionRepository.save(transactionEntity)
-  return savedTransactionNumber;
-  }
-  catch(error){
-    throw new InternalServerErrorException(error.message||'Transaction creation failed')
-  }
- 
+      if (transactions.length > 0) {
+        // for (const transaction of transactions) {
+        //   // console.log(transaction.totalPaidAmount)
+        //   totalPaid = totalPaid + transaction.totalPaidAmount;
+        //     console.log(totalPaid)
+        // }
+        // console.log(transactions[lastTransactions-1])
+        totalPaidAmount =
+          createTransactionDto.paidAmount +
+          transactions[lastTransactions - 1].totalPaidAmount;
 
-   
+        dueAmount = order.totalPurchesAmount - totalPaidAmount;
+      } else {
+        dueAmount = order.totalPurchesAmount - createTransactionDto.paidAmount;
+        // console.log(dueAmount)
+        totalPaidAmount = createTransactionDto.paidAmount;
+      }
+
+      if (order.totalPurchesAmount > totalPaidAmount) {
+        paymentStatus = 'partial';
+      } else if (order.totalPurchesAmount === totalPaidAmount) {
+        paymentStatus = 'paid';
+      }
+      const transactionNumber = generateTransactionNumber();
+      const transactionEntity = this.transactionRepository.create({
+        ...createTransactionDto,
+        totalPurchesAmount,
+        totalPaidAmount,
+        dueAmount,
+        transactionNumber,
+        paymentStatus,
+        order,
+      });
+
+      const savedTransactionNumber =
+        await this.transactionRepository.save(transactionEntity);
+      return savedTransactionNumber;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        error.message || 'Transaction creation failed',
+      );
+    }
+
     //return 'This action adds a new transaction';
   }
 

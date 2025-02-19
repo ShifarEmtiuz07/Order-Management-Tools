@@ -13,6 +13,7 @@ import { CheckoutModule } from './Module/checkout/checkout.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as  redisStore  from 'cache-manager-redis-store';
 import { TransactionModule } from './Module/transaction/transaction.module';
+import { RequisitionModule } from './Module/warehouse/requisition/requisition.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { TransactionModule } from './Module/transaction/transaction.module';
     CustomerModule,
     OrderModule,
     CheckoutModule,
-    TransactionModule
+    TransactionModule,
+    RequisitionModule
   ],
   controllers: [AppController],
   providers: [AppService],

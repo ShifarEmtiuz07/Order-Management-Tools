@@ -48,7 +48,7 @@ export class Checkout {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Product, (product) => product.orderItem)
+  @ManyToOne(() => Product, (product) => product.orderItem)
   @JoinColumn({ name: 'product' })
   product: Product;
 

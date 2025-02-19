@@ -30,8 +30,8 @@ export class CreateOrderDto {
   deliveryDate: Date;
   @IsString()
   paymentStatus: string;
-  @IsNumber()
-  paidAmount: number;
+  // @IsNumber()
+  // paidAmount: number;
   @IsString()
   employee: Employee;
   // orderCreatedBY: string;

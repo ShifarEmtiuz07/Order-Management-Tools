@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -57,27 +57,27 @@ export class OrderService {
 
       const totalPurchesAmount =
         totalOrderPrice + createOrderDto.deliveryCharge;
-      const dueAmount = totalPurchesAmount - createOrderDto.paidAmount;
-      if (totalPurchesAmount > createOrderDto.paidAmount) {
-        createOrderDto.paymentStatus = 'partial';
-      } else if (totalPurchesAmount === createOrderDto.paidAmount) {
-        createOrderDto.paymentStatus = 'paid';
-      }
+      // const dueAmount = totalPurchesAmount - createOrderDto.paidAmount;
+      // if (totalPurchesAmount > createOrderDto.paidAmount) {
+      //   createOrderDto.paymentStatus = 'partial';
+      // } else if (totalPurchesAmount === createOrderDto.paidAmount) {
+      //   createOrderDto.paymentStatus = 'paid';
+      // }
       const orderNumber = await generateOrderNumber();
 
       const orderEntity = await this.orderRepository.create({
         ...createOrderDto,
         totalOrderPrice,
         totalPurchesAmount,
-        dueAmount,
+       
         orderNumber,
         checkout: checkoutProducts,
       });
-      console.log(orderEntity);
+      // console.log(orderEntity);
       const savedOrder = await this.orderRepository.save(orderEntity);
       return savedOrder;
     } catch (error) {
-      console.log(error.message);
+     throw new InternalServerErrorException(error.message||'Order creation failed')
     }
   }
 

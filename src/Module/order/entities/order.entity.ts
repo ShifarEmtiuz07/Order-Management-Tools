@@ -2,6 +2,7 @@ import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Customer } from 'src/Module/customer/entities/customer.entity';
 import { Employee } from 'src/Module/employee/entities/employee.entity';
 import { Transaction } from 'src/Module/transaction/entities/transaction.entity';
+import { Requisition } from 'src/Module/warehouse/requisition/entities/requisition.entity';
 import { OrderStatus } from 'src/utils/orderStatus.enum';
 import {
   Column,
@@ -41,12 +42,12 @@ export class Order {
   totalOrderPrice: number;
   @Column()
   totalPurchesAmount: number;
-  @Column()
-  paidAmount: number;
-  @Column()
-  dueAmount: number;
-  @Column()
-  paymentStatus: string;
+  // @Column()
+  // paidAmount: number;
+  // @Column()
+  // dueAmount: number;
+  // @Column()
+  // paymentStatus: string;
   @Column({ nullable: true })
   checkoutNumber: string;
 
@@ -87,8 +88,10 @@ export class Order {
   @JoinColumn({ name: 'checkoutItems' })
   checkout: Checkout[];
 
-  @ManyToOne(()=>Transaction,(transaction)=>transaction.order)
+  @OneToMany(()=>Transaction,(transaction)=>transaction.order)
   transaction:Transaction[]
 
+  @ManyToOne(()=>Requisition,(requisition)=>requisition.order)
+  requisition:Requisition;
 
 }
