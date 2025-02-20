@@ -60,7 +60,7 @@ export class Product {
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
-  @OneToOne(() => Inventory, (inventory) => inventory.productCode)
+  @OneToOne(() => Inventory, (inventory) => inventory.productItemCode)
   inventory: Inventory;
   
   // @ManyToOne(()=>Order,(order)=>order.product)

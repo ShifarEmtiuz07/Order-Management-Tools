@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateRequisitionDto } from './dto/create-requisition.dto';
 import { UpdateRequisitionDto } from './dto/update-requisition.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,7 +20,6 @@ export class RequisitionService {
     private readonly requisitionRepository: Repository<Requisition>,
   ) {}
   async create(createRequisitionDto: CreateRequisitionDto[]) {
-    
     try {
       const requisitionNumber = generateRequisitionNumber();
 
@@ -48,7 +47,7 @@ export class RequisitionService {
         }
 
         const requisition = new Requisition();
-        requisition.order = order;
+        requisition.order = [order];
         requisition.orderNumber = dto.orderNumber;
         requisition.requisitionNumber = requisitionNumber;
         requisitionEntity.push(requisition);
@@ -57,9 +56,15 @@ export class RequisitionService {
           orderStatus: OrderStatus.Store,
         });
       }
-      // console.log(requisitionEntity)
-      const savedRequisitionEntity =
-        await this.requisitionRepository.save(requisitionEntity);
+      //  console.log(requisitionEntity)
+      const createRequisitionEntity =
+        await this.requisitionRepository.create(requisitionEntity);
+
+      const savedRequisitionEntity = await this.requisitionRepository.save(
+        createRequisitionEntity,
+      );
+
+      console.log(savedRequisitionEntity);
 
       return savedRequisitionEntity;
     } catch (error) {
@@ -69,12 +74,62 @@ export class RequisitionService {
     }
   }
 
-  findAll() {
-    return `This action returns all requisition`;
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    searchTerm,
+  ): Promise<{
+    status: number;
+    totalRequisitions: number;
+    currentPage: number;
+    totalPages: number;
+    message: string;
+    data: Requisition[];
+  }> {
+    const queryBuilder = await this.requisitionRepository
+      .createQueryBuilder('requisitions')
+      //  .select('requisitions.requisitionNumber','requisitionNumber')
+      // // .addSelect('requisitions.requisitionNumber', 'requisitionNumber')
+      // .addSelect('COUNT(requisitions.id)', 'requisitionsCount')
+      //  .addSelect('COUNT(order.id)', 'orderCount')
+      .leftJoinAndSelect('requisitions.order', 'order')
+      //  .groupBy('requisitions.requisitionNumber')
+      //   .groupBy('order.id')
+      //   .addGroupBy('requisitionsCount')
+      .orderBy('requisitions.created_at', 'DESC');
+
+    if (searchTerm) {
+      queryBuilder.where('requisitions.requisitionNumber ILIKE :searchTerm', {
+        searchTerm: `${searchTerm}`,
+      });
+    }
+    const [requisitions, totalCount] = await queryBuilder
+      .take(limit)
+      .skip((page - 1) * limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      status: 200,
+      totalRequisitions: totalCount,
+      currentPage: page,
+      totalPages,
+      message: 'Retrieved requisitions successfully',
+      data: requisitions,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} requisition`;
+ async findOne(requisitionNumber: string) {
+  try{
+    const requisition= await this.requisitionRepository.find({where:{requisitionNumber:requisitionNumber},relations:['order']})
+    return requisition
+  }catch(error){
+    throw new NotFoundException(error.message)
+  }
+
+   
+    //return `This action returns a #${id} requisition`;
   }
 
   update(id: number, updateRequisitionDto: UpdateRequisitionDto) {

@@ -38,6 +38,6 @@ export class Customer {
   })
   updatedAt: Date;
 
-  @OneToMany(()=>Order,(order)=>order.customerId)
+  @OneToMany(()=>Order,(order)=>order.customer)
   order:Order[]
 }

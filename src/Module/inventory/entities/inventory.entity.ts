@@ -29,5 +29,5 @@ export class Inventory {
 
   @OneToOne(() => Product, (product) => product.inventory)
   @JoinColumn({ name: 'productCode', referencedColumnName: 'productCode' })
-  productCode: Product;
+  productItemCode: Product;
 }

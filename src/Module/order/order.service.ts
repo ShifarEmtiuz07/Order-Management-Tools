@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -34,42 +38,24 @@ export class OrderService {
 
       //console.log(orders);
       let checkoutProducts: Checkout[] = [];
-
-      // orders.map((order) => {
-
-      //   checkoutProducts.push(order);
-
-      //   //console.log(order);
-      // });
-
       let totalOrderPrice: number = 0;
-      // orders.map((order) => {
-      //   totalOrderPrice = totalOrderPrice + order.subTotal;
-
-      // });
 
       for (const order of orders) {
         totalOrderPrice = totalOrderPrice + order.subTotal;
         checkoutProducts.push(order);
       }
       //console.log(checkoutProducts);
-      //console.log(` aa: ${allProducts}`)
 
       const totalPurchesAmount =
         totalOrderPrice + createOrderDto.deliveryCharge;
-      // const dueAmount = totalPurchesAmount - createOrderDto.paidAmount;
-      // if (totalPurchesAmount > createOrderDto.paidAmount) {
-      //   createOrderDto.paymentStatus = 'partial';
-      // } else if (totalPurchesAmount === createOrderDto.paidAmount) {
-      //   createOrderDto.paymentStatus = 'paid';
-      // }
+
       const orderNumber = await generateOrderNumber();
 
       const orderEntity = await this.orderRepository.create({
         ...createOrderDto,
         totalOrderPrice,
         totalPurchesAmount,
-       
+
         orderNumber,
         checkout: checkoutProducts,
       });
@@ -77,24 +63,86 @@ export class OrderService {
       const savedOrder = await this.orderRepository.save(orderEntity);
       return savedOrder;
     } catch (error) {
-     throw new InternalServerErrorException(error.message||'Order creation failed')
+      throw new InternalServerErrorException(
+        error.message || 'Order creation failed',
+      );
     }
   }
 
-async  findAll() {
-  // console.log('from api')
-    return await this.orderRepository.find({relations:['employee','checkout']});
+  async findAll() {
+    return await this.orderRepository.find({
+      relations: ['employee', 'checkout'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(orderNumber: string) {
+    try {
+      const order = await this.orderRepository.findOne({
+        where: { orderNumber: orderNumber },
+        relations: [
+          'employee',
+          'customer',
+          'checkout',
+          'transaction',
+          'requisition',
+        ],
+        select: {
+          employee: {
+            employeeId: true,
+            name: true,
+            phone: true,
+          },
+          customer: {
+            id: true,
+            customerId: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            address: true,
+            shippingAddress: true,
+          },
+          checkout: {
+            id: true,
+            checkoutNumber: true,
+          },
+          transaction: {
+            transactionNumber: true,
+            orderNumber: true,
+          },
+        },
+      });
+
+      return order;
+    } catch (error) {
+      throw new NotFoundException(
+        error.message || `Order ${orderNumber} not found`,
+      );
+    }
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(orderNumber: string, updateOrderDto: UpdateOrderDto) {
+    try {
+      const order = await this.orderRepository.find({
+        where: { orderNumber: orderNumber },
+      });
+
+      Object.assign(orderNumber, updateOrderDto);
+
+      return await this.orderRepository.save(order);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async remove(orderNumber: string) {
+    try {
+      const order = await this.orderRepository.find({
+        where: { orderNumber: orderNumber },
+      });
+
+      return await this.orderRepository.remove(order);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }

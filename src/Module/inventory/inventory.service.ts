@@ -33,7 +33,7 @@ export class InventoryService {
       select: {
         id: true,
         productQuantity: true,
-        productCode: {
+        productItemCode: {
           productNameEn: true,
           productNameBn: true,
           packSize: true,
@@ -50,7 +50,7 @@ export class InventoryService {
       select: {
         id: true,
         productQuantity: true,
-        productCode: {
+        productItemCode: {
           productNameEn: true,
           productNameBn: true,
           packSize: true,

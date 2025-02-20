@@ -1,5 +1,6 @@
 import { Order } from "src/Module/order/entities/order.entity";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ChallanList } from "../../challan-list/entities/challan-list.entity";
 
 @Entity({name:'requisitions'})
 export class Requisition {
@@ -29,7 +30,10 @@ export class Requisition {
 
 
       @OneToMany(()=>Order,(order)=>order.requisition)
-      order:Order;
+      order:Order[];
+
+      @ManyToOne(()=>ChallanList,(challanList)=>challanList.requisition)
+      challan:ChallanList;
       
   
 
