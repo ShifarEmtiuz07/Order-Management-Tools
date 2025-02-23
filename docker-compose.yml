@@ -1,50 +1,56 @@
-version: '3'
+version: '3.8'
 services:
   # Development service
   app-dev:
-    container_name: omt-nestjs-app-dev
+    container_name: nestjs-app-dev
     build:
       context: .
       dockerfile: Dockerfile
     env_file:
       - .env
     ports:
-      - '3000:3000'
+      - '8080:3000'
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
       - db
-    profiles:
-      - dev
+    # profiles:
+    #   - dev
 
   # Prodution service
-  app-prod:
-    container_name: nestjs-app-prod
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    env_file:
-      - .env
-    ports:
-      - '8080:3000'
-    depends_on:
-      - db
-    profiles:
-      - prod
+  # app-prod:
+  #   container_name: nestjs-app-prod
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.prod
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - '8080:3000'
+  #   depends_on:
+  #     - db
+  #   profiles:
+  #     - prod
 
   # Database service (PostgreSQL)
   db:
     image: postgres:17-alpine
-    container_name: omt-nestjs-db
+    container_name: nestjs-db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=db_password
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=my-omt
+      
     ports:
       - '5433:5432'
     volumes:
       - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d my-omt"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   # pgAdmin service (PostgreSQL)
   pgadmin:
     image: dpage/pgadmin4
