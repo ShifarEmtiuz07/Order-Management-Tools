@@ -1,10 +1,12 @@
 import { UserRole } from 'src/enum/role.enum';
 import { OtpToken } from 'src/Module/auth/entities/otpToken.entity';
+import { OrderLog } from 'src/Module/order-log/entities/order-log.entity';
 import { Order } from 'src/Module/order/entities/order.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -78,4 +80,11 @@ export class Employee {
 
   @OneToMany(() => Order, (order) => order.employee)
   order: Order[];
+
+ 
+ @OneToMany(()=>OrderLog,(orderLog)=>orderLog.employee)
+ orderLog:OrderLog
+
+
+
 }

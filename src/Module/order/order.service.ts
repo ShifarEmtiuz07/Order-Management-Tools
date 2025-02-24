@@ -15,6 +15,8 @@ import { Checkout } from '../checkout/entities/checkout.entity';
 import { CheckoutService } from '../checkout/checkout.service';
 import { Order } from './entities/order.entity';
 import { Customer } from '../customer/entities/customer.entity';
+import { Employee } from '../employee/entities/employee.entity';
+import { OrderLog } from '../order-log/entities/order-log.entity';
 
 @Injectable()
 export class OrderService {
@@ -27,6 +29,10 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
+    @InjectRepository(OrderLog)
+    private readonly orderlogRepository: Repository<OrderLog>,
     private readonly productsService: ProductsService,
     private readonly checkoutService: CheckoutService,
   ) {}
@@ -62,12 +68,40 @@ export class OrderService {
         ...createOrderDto,
         totalOrderPrice,
         totalPurchesAmount,
-        customer:customer,
+        customer: customer,
         orderNumber,
         checkout: checkoutProducts,
       });
+
       // console.log(orderEntity);
+
       const savedOrder = await this.orderRepository.save(orderEntity);
+
+      //order log creation
+
+      if (savedOrder) {
+        const order = await this.orderRepository.findOne({
+          where: { orderNumber: orderNumber },
+        });
+        // console.log(order.orderNumber);
+        const employee = await this.employeeRepository.findOne({
+          where: { employeeId: createOrderDto.employee.employeeId },
+        });
+        const orderLog = `${order.orderNumber} is created by EmployeeId: ${createOrderDto.employee} and orderStatus is ${order.orderStatus}`;
+        // console.log(orderLog);
+
+        const history = await this.orderlogRepository.create({
+          orderNumber: order.orderNumber,
+          log: orderLog,
+          orderStatus: order.orderStatus,
+          employee: employee,
+          order,
+        });
+        // console.log(history);
+        const savedlog = await this.orderlogRepository.save(history);
+        //  console.log(savedlog);
+      }
+
       return savedOrder;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -129,13 +163,30 @@ export class OrderService {
 
   async update(orderNumber: string, updateOrderDto: UpdateOrderDto) {
     try {
-      const order = await this.orderRepository.find({
+      const order = await this.orderRepository.findOne({
         where: { orderNumber: orderNumber },
       });
 
       Object.assign(orderNumber, updateOrderDto);
 
-      return await this.orderRepository.save(order);
+      const updatedOrder = await this.orderRepository.save(order);
+      if (updatedOrder) {
+        const orderStatus = updateOrderDto.orderStatus
+          ? updateOrderDto.orderStatus
+          : order.orderStatus;
+        const log = `${orderNumber} is updated by employeeId: ${order.employee}`;
+        const orderLog = new OrderLog();
+        (orderLog.orderNumber = orderNumber),
+          (orderLog.order = order),
+          (orderLog.orderStatus = orderStatus),
+          (orderLog.employee = order.employee),
+          (orderLog.log = log);
+
+        const history = await this.orderlogRepository.create(orderLog);
+        await this.orderlogRepository.save(history);
+      }
+
+      return;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

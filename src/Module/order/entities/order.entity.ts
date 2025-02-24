@@ -1,6 +1,7 @@
 import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Customer } from 'src/Module/customer/entities/customer.entity';
 import { Employee } from 'src/Module/employee/entities/employee.entity';
+import { OrderLog } from 'src/Module/order-log/entities/order-log.entity';
 import { Transaction } from 'src/Module/transaction/entities/transaction.entity';
 import { ChallanList } from 'src/Module/warehouse/challan-list/entities/challan-list.entity';
 import { Requisition } from 'src/Module/warehouse/requisition/entities/requisition.entity';
@@ -97,5 +98,8 @@ export class Order {
 
   @ManyToOne(()=>ChallanList,(challanList)=>challanList.order)
   challan:ChallanList;
+
+  @OneToMany(()=>OrderLog,(orderLog)=>orderLog.order)
+  orderLog:OrderLog
 
 }

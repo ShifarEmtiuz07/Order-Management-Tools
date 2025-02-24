@@ -52,7 +52,7 @@ export class CheckoutService {
         item.subTotal = subTotal;
         item.checkoutNumber = checkoutNumber;
 
-        // console.log(`checkoutNumber:${item.checkoutNumber}`);
+        console.log(`checkoutNumber:${item.checkoutNumber}`);
 
         const singleOrderitem = await this.checkoutRepository.create({
           ...item,
@@ -96,7 +96,7 @@ export class CheckoutService {
     try {
       const queryBuilder = await this.checkoutRepository
         .createQueryBuilder('checkout')
-        .leftJoinAndSelect('checkout.product','product')
+        .leftJoinAndSelect('checkout.product', 'product')
         .orderBy('checkout.createdAt', 'DESC');
 
       if (searchTerm) {

@@ -15,6 +15,7 @@ import * as  redisStore  from 'cache-manager-redis-store';
 import { TransactionModule } from './Module/transaction/transaction.module';
 import { RequisitionModule } from './Module/warehouse/requisition/requisition.module';
 import { ChallanListModule } from './Module/warehouse/challan-list/challan-list.module';
+import { OrderLogModule } from './Module/order-log/order-log.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { ChallanListModule } from './Module/warehouse/challan-list/challan-list.
     CheckoutModule,
     TransactionModule,
     RequisitionModule,
-    ChallanListModule
+    ChallanListModule,
+    OrderLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

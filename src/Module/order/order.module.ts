@@ -9,10 +9,12 @@ import { Product } from '../products/entities/product.entity';
 import { Checkout } from '../checkout/entities/checkout.entity';
 import { CheckoutService } from '../checkout/checkout.service';
 import { Customer } from '../customer/entities/customer.entity';
+import { Employee } from '../employee/entities/employee.entity';
+import { OrderLog } from '../order-log/entities/order-log.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product, Checkout, Customer])],
+  imports: [TypeOrmModule.forFeature([Order, Product, Checkout, Customer,Employee,OrderLog])],
   controllers: [OrderController],
   providers: [OrderService, ProductsService,CheckoutService],
 })
