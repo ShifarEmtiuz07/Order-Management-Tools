@@ -14,6 +14,7 @@ import { ProductsService } from '../products/products.service';
 import { Checkout } from '../checkout/entities/checkout.entity';
 import { CheckoutService } from '../checkout/checkout.service';
 import { Order } from './entities/order.entity';
+import { Customer } from '../customer/entities/customer.entity';
 
 @Injectable()
 export class OrderService {
@@ -24,6 +25,8 @@ export class OrderService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
     private readonly productsService: ProductsService,
     private readonly checkoutService: CheckoutService,
   ) {}
@@ -34,6 +37,10 @@ export class OrderService {
       const orders = await this.checkoutRepository.find({
         where: { checkoutNumber },
         relations: ['order'],
+      });
+
+      const customer = await this.customerRepository.findOne({
+        where: { customerId: createOrderDto.customerId },
       });
 
       //console.log(orders);
@@ -55,7 +62,7 @@ export class OrderService {
         ...createOrderDto,
         totalOrderPrice,
         totalPurchesAmount,
-
+        customer:customer,
         orderNumber,
         checkout: checkoutProducts,
       });

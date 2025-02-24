@@ -35,9 +35,9 @@ export class CheckoutController {
     return this.checkoutService.getCheckout(page, limit, searchTerm);
   }
 
-  @Get(':orderNumber')
-  findOne(@Param('orderNumber') orderNumber: string) {
-    return this.checkoutService.find(orderNumber);
+  @Get(':checkoutNumber')
+  findOne(@Param('checkoutNumber') checkoutNumber: string) {
+    return this.checkoutService.find(checkoutNumber);
   }
 
   @Patch(':id')

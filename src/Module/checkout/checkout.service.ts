@@ -59,6 +59,7 @@ export class CheckoutService {
           subTotal: Math.round(subTotal),
           checkoutNumber: item.checkoutNumber,
           discount: Math.round(discount),
+          product: orderItem,
         });
         const savedOrderItem =
           await this.checkoutRepository.save(singleOrderitem);
@@ -72,7 +73,6 @@ export class CheckoutService {
       return {
         status: 201,
         message: 'Checkout created successfully',
-      
       };
     } catch (error) {
       throw new InternalServerErrorException(
@@ -96,6 +96,7 @@ export class CheckoutService {
     try {
       const queryBuilder = await this.checkoutRepository
         .createQueryBuilder('checkout')
+        .leftJoinAndSelect('checkout.product','product')
         .orderBy('checkout.createdAt', 'DESC');
 
       if (searchTerm) {

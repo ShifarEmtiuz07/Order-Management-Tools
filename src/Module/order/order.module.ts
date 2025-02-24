@@ -8,9 +8,11 @@ import { Order } from './entities/order.entity';
 import { Product } from '../products/entities/product.entity';
 import { Checkout } from '../checkout/entities/checkout.entity';
 import { CheckoutService } from '../checkout/checkout.service';
+import { Customer } from '../customer/entities/customer.entity';
+
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product,Checkout])],
+  imports: [TypeOrmModule.forFeature([Order, Product, Checkout, Customer])],
   controllers: [OrderController],
   providers: [OrderService, ProductsService,CheckoutService],
 })

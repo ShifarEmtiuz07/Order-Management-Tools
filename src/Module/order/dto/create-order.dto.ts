@@ -9,7 +9,7 @@ export class CreateOrderDto {
   @IsString()
   checkoutNumber: string;
   @IsString()
-  customerId: Customer;
+  customerId: string;
   @IsString()
   customerName: string;
   @IsString()
