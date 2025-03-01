@@ -8,6 +8,8 @@ export class ChallanList {
     id:number;
     @Column()
     challanNo:string;
+    @Column({nullable:true})
+    employeeId: string;
     @Column()
     requisitionNumber:string;
     @Column({nullable:true})

@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateChallanListDto } from './dto/create-challan-list.dto';
 import { UpdateChallanListDto } from './dto/update-challan-list.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +15,8 @@ import { Checkout } from 'src/Module/checkout/entities/checkout.entity';
 import { Inventory } from 'src/Module/inventory/entities/inventory.entity';
 import { Product } from 'src/Module/products/entities/product.entity';
 import { OrderStatus } from 'src/utils/orderStatus.enum';
+import { Employee } from 'src/Module/employee/entities/employee.entity';
+import { OrderLog } from 'src/Module/order-log/entities/order-log.entity';
 
 @Injectable()
 export class ChallanListService {
@@ -25,6 +31,10 @@ export class ChallanListService {
     private readonly checkoutRepository: Repository<Checkout>,
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
+    @InjectRepository(OrderLog)
+    private readonly orderlogRepository: Repository<OrderLog>,
   ) {}
   async create(createChallanListDto: CreateChallanListDto) {
     try {
@@ -46,9 +56,28 @@ export class ChallanListService {
           orderStatus: OrderStatus.Delivered,
         });
         // console.log(order)
+        if (!order) {
+          throw new NotFoundException(`${order.orderNumber} does not exsist`);
+        }
+        const employee = await this.employeeRepository.findOne({
+          where: { employeeId: createChallanListDto.employeeId },
+        });
+
         const checkouts = await this.checkoutRepository.find({
           where: { checkoutNumber: order.checkoutNumber },
         });
+
+        const log = ` ${challanNo} is created for ${order.orderNumber} & created by employeeId: ${employee.employeeId}`;
+        const challanLog = new OrderLog();
+        (challanLog.orderNumber = order.orderNumber),
+          (challanLog.order = order),
+          (challanLog.orderStatus = order.orderStatus),
+          (challanLog.employee = employee),
+          (challanLog.log = log);
+
+        const history = await this.orderlogRepository.create(challanLog);
+        await this.orderlogRepository.save(history);
+
         //console.log(checkouts);
         for (const checkout of checkouts) {
           //console.log(checkout)

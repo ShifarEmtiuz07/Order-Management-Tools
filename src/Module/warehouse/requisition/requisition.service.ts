@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRequisitionDto } from './dto/create-requisition.dto';
 import { UpdateRequisitionDto } from './dto/update-requisition.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +12,7 @@ import { Employee } from 'src/Module/employee/entities/employee.entity';
 import { generateRequisitionNumber } from 'src/utils/order.util';
 import { Requisition } from './entities/requisition.entity';
 import { OrderStatus } from 'src/utils/orderStatus.enum';
+import { OrderLog } from 'src/Module/order-log/entities/order-log.entity';
 
 @Injectable()
 export class RequisitionService {
@@ -18,6 +23,8 @@ export class RequisitionService {
     private readonly employeeRepository: Repository<Employee>,
     @InjectRepository(Requisition)
     private readonly requisitionRepository: Repository<Requisition>,
+    @InjectRepository(OrderLog)
+    private readonly orderlogRepository: Repository<OrderLog>,
   ) {}
   async create(createRequisitionDto: CreateRequisitionDto[]) {
     try {
@@ -31,18 +38,31 @@ export class RequisitionService {
         });
         // console.log(order)
         if (!order) {
-          throw new InternalServerErrorException(
-            `${order.orderNumber} does not exsist`,
-          );
+          throw new NotFoundException(`${order.orderNumber} does not exsist`);
         }
-        const emoloyee = await this.employeeRepository.findOne({
+
+        const employee = await this.employeeRepository.findOne({
           where: { employeeId: dto.employeeId },
         });
+
+        //requisition history
+
+        const log = ` ${requisitionNumber} is created for ${order.orderNumber} & created by employeeId: ${employee.employeeId}`;
+        const requisitionLog = new OrderLog();
+        (requisitionLog.orderNumber = order.orderNumber),
+          (requisitionLog.order = order),
+          (requisitionLog.orderStatus = order.orderStatus),
+          (requisitionLog.employee = employee),
+          (requisitionLog.log = log);
+
+        const history = await this.orderlogRepository.create(requisitionLog);
+        await this.orderlogRepository.save(history);
+
         // console.log(emoloyee)
 
-        if (!emoloyee) {
+        if (!employee) {
           throw new InternalServerErrorException(
-            `${emoloyee.id} does not exsist`,
+            `${employee.id} does not exsist`,
           );
         }
 
@@ -120,15 +140,17 @@ export class RequisitionService {
     };
   }
 
- async findOne(requisitionNumber: string) {
-  try{
-    const requisition= await this.requisitionRepository.find({where:{requisitionNumber:requisitionNumber},relations:['order']})
-    return requisition
-  }catch(error){
-    throw new NotFoundException(error.message)
-  }
+  async findOne(requisitionNumber: string) {
+    try {
+      const requisition = await this.requisitionRepository.find({
+        where: { requisitionNumber: requisitionNumber },
+        relations: ['order'],
+      });
+      return requisition;
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
 
-   
     //return `This action returns a #${id} requisition`;
   }
 
