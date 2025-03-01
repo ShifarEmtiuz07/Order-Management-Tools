@@ -67,6 +67,8 @@ export class ChallanListService {
           where: { checkoutNumber: order.checkoutNumber },
         });
 
+        //challan history
+
         const log = ` ${challanNo} is created for ${order.orderNumber} & created by employeeId: ${employee.employeeId}`;
         const challanLog = new OrderLog();
         (challanLog.orderNumber = order.orderNumber),
